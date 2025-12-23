@@ -1,24 +1,41 @@
 package com.example.pas;
 
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class AddMessageActivity extends AppCompatActivity {
+
+    private DBHelper dbHelper;
+    private EditText etTitle, etContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_message);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        dbHelper = new DBHelper(this);
+
+        etTitle = findViewById(R.id.etTitle);
+        etContent = findViewById(R.id.etContent);
+        Button btnSave = findViewById(R.id.btnSave);
+
+        btnSave.setOnClickListener(v -> {
+            String title = etTitle.getText().toString().trim();
+            String content = etContent.getText().toString().trim();
+
+            if (title.isEmpty() || content.isEmpty()) {
+                Toast.makeText(this, "Title and content required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            boolean ok = dbHelper.insertMessage(title, content, null);
+            Toast.makeText(this, ok ? "Saved!" : "Failed!", Toast.LENGTH_SHORT).show();
+
+            if (ok) finish();
         });
     }
 }
